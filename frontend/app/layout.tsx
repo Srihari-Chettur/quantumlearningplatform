@@ -14,6 +14,18 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="h-full antialiased">
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
+          crossOrigin="anonymous"
+        />
+        <script
+          defer
+          src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="min-h-full flex flex-col font-sans bg-slate-50/50 text-slate-900 selection:bg-emerald-500/20 selection:text-emerald-900 relative">
         <div className="fixed inset-0 -z-10 bg-[radial-gradient(ellipse_80%_60%_at_50%_-15%,rgba(16,185,129,0.12),rgba(255,255,255,0))] pointer-events-none" />
         <Navbar />

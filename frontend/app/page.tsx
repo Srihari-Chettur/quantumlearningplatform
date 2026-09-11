@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, Cpu, Sparkles, Zap, Layers, Binary } from "lucide-react";
+import { ArrowRight, BookOpen, Cpu, Sparkles, Zap, Layers, Binary, Terminal, Trophy } from "lucide-react";
 
 export default function HomePage() {
   const steps = [
@@ -79,15 +79,23 @@ export default function HomePage() {
                 className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white hover:bg-emerald-50/50 border border-emerald-200 text-slate-800 font-semibold text-sm shadow-xs hover:scale-[1.02] transition-all cursor-pointer"
               >
                 <Cpu className="h-4 w-4 text-emerald-600" />
-                Open Circuit Lab
+                Circuit Lab
               </Link>
 
               <Link
-                href="/lessons/grover"
+                href="/code-lab"
+                className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 font-semibold text-sm shadow-xs hover:scale-[1.02] transition-all cursor-pointer"
+              >
+                <Terminal className="h-4 w-4 text-teal-600" />
+                Code Lab
+              </Link>
+
+              <Link
+                href="/challenges"
                 className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl bg-teal-50 hover:bg-teal-100/70 border border-teal-200 text-teal-900 font-semibold text-sm transition-colors cursor-pointer"
               >
-                <Sparkles className="h-4 w-4 text-teal-600" />
-                Flagship: Grover&apos;s Algorithm
+                <Trophy className="h-4 w-4 text-teal-600" />
+                Challenges
               </Link>
             </div>
           </div>

@@ -13,7 +13,9 @@ import {
   Layers,
   RotateCcw,
   Check,
+  ArrowRight,
 } from "lucide-react";
+import Link from "next/link";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { GroverGeometricRotation } from "@/components/visualization/GroverGeometricRotation";
 
@@ -597,6 +599,36 @@ export default function GroverLessonPage() {
           </div>
         </div>
       </section>
+
+      {/* Next Step Banner */}
+      <div className="p-6 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xs mt-8">
+        <div>
+          <h3 className="font-bold text-slate-900 text-base">Ready to code Grover yourself?</h3>
+          <p className="text-xs text-slate-600 mt-1">
+            Test your knowledge by tackling the Grover coding challenge or write custom oracles in Code Lab.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/challenges?id=chall_grover_full"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-colors shrink-0 cursor-pointer"
+          >
+            Grover Challenge <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+          <Link
+            href="/code-lab"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 hover:border-emerald-300 text-slate-700 text-xs font-bold transition-colors shrink-0 cursor-pointer shadow-xs"
+          >
+            Code Lab
+          </Link>
+          <Link
+            href="/assessments"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition-colors shrink-0 cursor-pointer shadow-xs"
+          >
+            Grover Quiz
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

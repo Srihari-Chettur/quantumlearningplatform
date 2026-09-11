@@ -587,12 +587,26 @@ export default function GatesLessonPage() {
             Open the Circuit Lab to assemble step-based multi-qubit circuits and inspect full probability distributions.
           </p>
         </div>
-        <Link
-          href="/circuit-lab"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-colors shrink-0 cursor-pointer"
-        >
-          Open Circuit Lab <ArrowRight className="h-4 w-4" />
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/circuit-lab"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-colors shrink-0 cursor-pointer"
+          >
+            Circuit Lab <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+          <Link
+            href="/code-lab"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 hover:border-emerald-300 text-slate-700 text-xs font-bold transition-colors shrink-0 cursor-pointer shadow-xs"
+          >
+            Code Lab
+          </Link>
+          <Link
+            href="/challenges"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition-colors shrink-0 cursor-pointer shadow-xs"
+          >
+            Challenges
+          </Link>
+        </div>
       </div>
     </div>
   );

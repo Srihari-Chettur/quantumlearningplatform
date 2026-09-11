@@ -4,7 +4,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { checkBackendHealth } from "@/lib/api/simulation";
-import { Atom, BookOpen, Cpu, Sparkles, Menu, X } from "lucide-react";
+import {
+  Atom,
+  BookOpen,
+  Cpu,
+  Sparkles,
+  Menu,
+  X,
+  Terminal,
+  Trophy,
+  ClipboardCheck,
+  LayoutDashboard,
+  Bot
+} from "lucide-react";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -28,9 +40,14 @@ export function Navbar() {
 
   const navLinks = [
     { href: "/", label: "Home", icon: Atom },
-    { href: "/lessons/gates", label: "Gates Lesson", icon: BookOpen },
+    { href: "/lessons/gates", label: "Gates", icon: BookOpen },
     { href: "/circuit-lab", label: "Circuit Lab", icon: Cpu },
-    { href: "/lessons/grover", label: "Grover's Algorithm", icon: Sparkles },
+    { href: "/code-lab", label: "Code Lab", icon: Terminal },
+    { href: "/lessons/grover", label: "Grover", icon: Sparkles },
+    { href: "/challenges", label: "Challenges", icon: Trophy },
+    { href: "/assessments", label: "Assessments", icon: ClipboardCheck },
+    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { href: "/ai-tutor", label: "AI Tutor", icon: Bot },
   ];
 
   return (

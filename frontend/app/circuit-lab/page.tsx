@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useState, useId, useRef } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { runSimulation, SimulationApiError } from "@/lib/api/simulation";
 import {
   CircuitSchema,
@@ -11,6 +11,7 @@ import {
   SimulationResultSchema,
 } from "@/lib/types/quantum";
 import { BlochSphere, BlochState, BLOCH_PRESETS } from "@/components/visualization/BlochSphere";
+import { AITutorPanel } from "@/components/AITutorPanel";
 import {
   Play,
   Trash2,
@@ -26,6 +27,8 @@ import {
   CheckCircle2,
   Compass,
   Target,
+  Terminal,
+  Sparkles,
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
@@ -103,7 +106,15 @@ function buildGroverPresetGates(
 }
 
 function CircuitLabContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
+  const [aiPanelOpen, setAiPanelOpen] = useState<boolean>(false);
+  const [aiPrompt, setAiPrompt] = useState<string>("");
+
+  const triggerAI = (promptText: string) => {
+    setAiPrompt(promptText);
+    setAiPanelOpen(true);
+  };
   const initialPreset = searchParams.get("preset");
   const initialTargetParam = searchParams.get("target") as GroverTarget | null;
   const initialTarget: GroverTarget =
@@ -474,6 +485,27 @@ function CircuitLabContent() {
       });
     }
     setGates([...nonMeasureGates, ...newMeasurements]);
+  };
+
+  const getCircuitPayload = (): CircuitSchema => {
+    const sortedGates = [...gates].sort((a, b) => a.step - b.step);
+    return {
+      num_qubits: numQubits,
+      num_classical_bits: numQubits,
+      gates: sortedGates.map(({ id, type, qubits, classical_bits }) => ({
+        id,
+        type,
+        qubits,
+        ...(classical_bits ? { classical_bits } : {}),
+      })),
+      shots,
+    };
+  };
+
+  const handleOpenInCodeLab = () => {
+    const payload = getCircuitPayload();
+    const encoded = encodeURIComponent(JSON.stringify(payload));
+    router.push(`/code-lab?circuit=${encoded}`);
   };
 
   // Run Simulation on Qiskit Aer
@@ -1144,6 +1176,28 @@ function CircuitLabContent() {
               </button>
 
               <button
+                onClick={handleOpenInCodeLab}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/40 text-slate-700 hover:text-emerald-800 text-xs font-bold transition-all cursor-pointer"
+                title="Convert circuit to Python Qiskit code"
+              >
+                <Terminal className="h-3.5 w-3.5 text-emerald-600" /> Open in Code Lab
+              </button>
+
+              <button
+                onClick={() => {
+                  const prompt =
+                    gates.length > 0
+                      ? "Explain this quantum circuit step by step and analyze its behavior."
+                      : "Help me design a quantum circuit in Circuit Lab.";
+                  triggerAI(prompt);
+                }}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition-all cursor-pointer shadow-xs"
+                title="Analyze circuit with AI Quantum Tutor"
+              >
+                <Sparkles className="h-3.5 w-3.5 text-emerald-600" /> Ask AI Tutor
+              </button>
+
+              <button
                 onClick={handleRunSimulation}
                 disabled={loading || gates.length === 0}
                 className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 disabled:opacity-50 transition-all cursor-pointer"
@@ -1322,11 +1376,36 @@ function CircuitLabContent() {
                     <strong className="text-slate-900 font-mono font-bold">{result.shots}</strong>
                   </div>
                 </div>
+
+                <button
+                  onClick={() =>
+                    triggerAI(
+                      `Explain these simulation measurement probabilities for my circuit: ${JSON.stringify(
+                        result.probabilities
+                      )}`
+                    )
+                  }
+                  className="w-full py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold border border-emerald-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer mt-2"
+                >
+                  <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
+                  Ask AI Tutor to explain results
+                </button>
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {/* Floating AI Tutor Panel */}
+      <AITutorPanel
+        circuit={getCircuitPayload()}
+        counts={result?.counts}
+        probabilities={result?.probabilities}
+        lessonTitle={activePreset === "grover" ? "Grover's Algorithm" : "Circuit Lab"}
+        initialPrompt={aiPrompt}
+        isOpen={aiPanelOpen}
+        onClose={() => setAiPanelOpen(false)}
+      />
     </div>
   );
 }
