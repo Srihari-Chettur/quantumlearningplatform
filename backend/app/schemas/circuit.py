@@ -14,6 +14,7 @@ class GateType(str, Enum):
     S = "S"
     T = "T"
     CNOT = "CNOT"
+    CZ = "CZ"
     MEASURE = "MEASURE"
 
 
@@ -141,11 +142,11 @@ class CircuitSchema(BaseModel):
                         f"Gate '{gate.id}' of type '{gate.type.value}' cannot have classical bits."
                     )
 
-            # 4. Validate CNOT gate
+            # 4. Validate two-qubit gates (CNOT, CZ)
             elif gate.type == GateType.CNOT:
                 if len(gate.qubits) != 2:
                     raise ValueError(
-                        f"Gate '{gate.id}' of type 'CNOT' requires exactly 2 qubits (control and target), but received {len(gate.qubits)}."
+                        f"Gate '{gate.id}' of type 'CNOT' requires exactly 2 qubits, but received {len(gate.qubits)}."
                     )
                 if gate.qubits[0] == gate.qubits[1]:
                     raise ValueError(
@@ -154,6 +155,20 @@ class CircuitSchema(BaseModel):
                 if gate.classical_bits is not None and len(gate.classical_bits) > 0:
                     raise ValueError(
                         f"Gate '{gate.id}' of type 'CNOT' cannot have classical bits."
+                    )
+
+            elif gate.type == GateType.CZ:
+                if len(gate.qubits) != 2:
+                    raise ValueError(
+                        f"Gate '{gate.id}' of type 'CZ' requires exactly 2 qubits, but received {len(gate.qubits)}."
+                    )
+                if gate.qubits[0] == gate.qubits[1]:
+                    raise ValueError(
+                        f"Gate '{gate.id}' of type 'CZ' cannot use the same qubit {gate.qubits[0]} for both inputs."
+                    )
+                if gate.classical_bits is not None and len(gate.classical_bits) > 0:
+                    raise ValueError(
+                        f"Gate '{gate.id}' of type 'CZ' cannot have classical bits."
                     )
 
             # 5. Validate MEASURE operation

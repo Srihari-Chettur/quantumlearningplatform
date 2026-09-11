@@ -279,3 +279,37 @@ def test_zero_classical_bits_provided():
     assert "detail" in data
     assert "num_classical_bits must be greater than 0" in data["detail"]
 
+
+def test_cz_invalid_qubit_count():
+    """CZ gate with incorrect qubit count must fail."""
+    payload = {
+        "num_qubits": 2,
+        "gates": [
+            {"id": "cz1", "type": "CZ", "qubits": [0]},
+            {"id": "m1", "type": "MEASURE", "qubits": [0], "classical_bits": [0]}
+        ],
+        "shots": 1024
+    }
+    response = client.post("/api/simulation/run", json=payload)
+    assert response.status_code in (400, 422)
+    data = response.json()
+    assert "detail" in data
+    assert "requires exactly 2 qubits" in data["detail"]
+
+
+def test_cz_identical_inputs():
+    """CZ gate with identical control and target qubits must fail."""
+    payload = {
+        "num_qubits": 2,
+        "gates": [
+            {"id": "cz1", "type": "CZ", "qubits": [0, 0]},
+            {"id": "m1", "type": "MEASURE", "qubits": [0], "classical_bits": [0]}
+        ],
+        "shots": 1024
+    }
+    response = client.post("/api/simulation/run", json=payload)
+    assert response.status_code in (400, 422)
+    data = response.json()
+    assert "detail" in data
+    assert "cannot use the same qubit 0 for both inputs" in data["detail"]
+

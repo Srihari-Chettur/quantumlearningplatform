@@ -5,6 +5,16 @@ from app.main import app
 client = TestClient(app)
 
 
+def test_root_endpoint():
+    """GET / must return 200 with service name and status ok."""
+    response = client.get("/")
+    assert response.status_code == 200
+    assert response.json() == {
+        "service": "SIH Quantum Simulation Backend",
+        "status": "ok"
+    }
+
+
 def test_health_endpoint():
     """GET /health must return 200 with {'status': 'ok'}."""
     response = client.get("/health")
@@ -207,3 +217,66 @@ def test_optional_defaults():
     # State '01': q1=0, q0=1
     assert data["probabilities"]["01"] == 1.0
     assert data["probabilities"]["00"] == 0.0
+
+
+def test_cz_gate_simulation():
+    """Verify CZ gate behavior in simulation."""
+    shots = 500
+    # Prepare |11> with X gates, then apply CZ, then measure
+    payload = {
+        "num_qubits": 2,
+        "num_classical_bits": 2,
+        "gates": [
+            {"id": "x0", "type": "X", "qubits": [0]},
+            {"id": "x1", "type": "X", "qubits": [1]},
+            {"id": "cz1", "type": "CZ", "qubits": [0, 1]},
+            {"id": "m0", "type": "MEASURE", "qubits": [0], "classical_bits": [0]},
+            {"id": "m1", "type": "MEASURE", "qubits": [1], "classical_bits": [1]}
+        ],
+        "shots": shots
+    }
+    response = client.post("/api/simulation/run", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["success"] is True
+    assert data["counts"].get("11") == shots
+    assert data["probabilities"].get("11") == 1.0
+
+
+def test_grover_with_native_cz_simulation():
+    """Verify 2-qubit Grover search circuit with native CZ gates achieves 100% amplification."""
+    shots = 1000
+    # Target state |11>:
+    # 1. Superposition: H(0), H(1)
+    # 2. Oracle (|11>): CZ(0, 1)
+    # 3. Diffusion: H(0), H(1), X(0), X(1), CZ(0, 1), X(0), X(1), H(0), H(1)
+    # 4. Measure: M(0)->0, M(1)->1
+    payload = {
+        "num_qubits": 2,
+        "num_classical_bits": 2,
+        "gates": [
+            {"id": "h0", "type": "H", "qubits": [0]},
+            {"id": "h1", "type": "H", "qubits": [1]},
+            {"id": "oracle_cz", "type": "CZ", "qubits": [0, 1]},
+            {"id": "diff_h0", "type": "H", "qubits": [0]},
+            {"id": "diff_h1", "type": "H", "qubits": [1]},
+            {"id": "diff_x0", "type": "X", "qubits": [0]},
+            {"id": "diff_x1", "type": "X", "qubits": [1]},
+            {"id": "diff_cz", "type": "CZ", "qubits": [0, 1]},
+            {"id": "diff_x0_post", "type": "X", "qubits": [0]},
+            {"id": "diff_x1_post", "type": "X", "qubits": [1]},
+            {"id": "diff_h0_post", "type": "H", "qubits": [0]},
+            {"id": "diff_h1_post", "type": "H", "qubits": [1]},
+            {"id": "m0", "type": "MEASURE", "qubits": [0], "classical_bits": [0]},
+            {"id": "m1", "type": "MEASURE", "qubits": [1], "classical_bits": [1]}
+        ],
+        "shots": shots
+    }
+    response = client.post("/api/simulation/run", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["success"] is True
+    # In Qiskit / Aer bit-ordering, target '11' is unambiguous and must have 100% probability
+    assert data["counts"].get("11") == shots
+    assert data["probabilities"].get("11") == 1.0
+

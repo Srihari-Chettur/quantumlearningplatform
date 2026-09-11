@@ -6,6 +6,7 @@ export type GateType =
   | "S"
   | "T"
   | "CNOT"
+  | "CZ"
   | "MEASURE";
 
 export interface GateSchema {
@@ -136,6 +137,18 @@ export const GATE_DEFINITIONS: Record<GateType, GateDefinition> = {
     bgLight: "bg-rose-500/15",
     borderColor: "border-rose-500/30",
     qubitCount: 2,
+  },
+  CZ: {
+    type: "CZ",
+    name: "Controlled-Z",
+    symbol: "CZ",
+    description: "Applies a Z phase-flip if both qubits are |1⟩ (symmetric phase inversion).",
+    category: "multi",
+    color: "text-teal-500",
+    bgLight: "bg-teal-500/15",
+    borderColor: "border-teal-500/30",
+    qubitCount: 2,
+    matrixLatex: "[[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,-1]]",
   },
   MEASURE: {
     type: "MEASURE",

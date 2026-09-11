@@ -53,6 +53,15 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 
+@app.get("/", tags=["info"], summary="Backend Service Info")
+async def root_info():
+    """Root endpoint returning service identity and status."""
+    return {
+        "service": "SIH Quantum Simulation Backend",
+        "status": "ok"
+    }
+
+
 @app.get("/health", tags=["health"], summary="Service Health Check")
 async def health_check():
     """Health check endpoint to verify backend service liveness."""

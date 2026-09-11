@@ -13,14 +13,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full antialiased dark">
-      <body className="min-h-full flex flex-col font-sans bg-slate-950 text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-200">
+    <html lang="en" className="h-full antialiased">
+      <body className="min-h-full flex flex-col font-sans bg-slate-50/50 text-slate-900 selection:bg-emerald-500/20 selection:text-emerald-900 relative">
+        <div className="fixed inset-0 -z-10 bg-[radial-gradient(ellipse_80%_60%_at_50%_-15%,rgba(16,185,129,0.12),rgba(255,255,255,0))] pointer-events-none" />
         <Navbar />
         <main className="flex-1 flex flex-col">{children}</main>
-        <footer className="border-t border-white/10 bg-slate-950/50 py-6 text-center text-xs text-slate-500">
+        <footer className="border-t border-emerald-100/80 bg-white/70 backdrop-blur-sm py-6 text-center text-xs text-slate-500">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <div>SIH 2026 — AI-Based Interactive Quantum Algorithm Learning Platform</div>
-            <div className="text-slate-400 font-mono text-[11px]">Powered by FastAPI + Qiskit Aer + Next.js</div>
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-emerald-800">SIH 2026</span>
+              <span>— AI-Based Interactive Quantum Algorithm Learning Platform</span>
+            </div>
+            <div className="text-slate-500 font-mono text-[11px]">Powered by FastAPI + Qiskit Aer + Next.js</div>
           </div>
         </footer>
       </body>

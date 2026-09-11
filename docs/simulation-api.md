@@ -12,7 +12,24 @@ The Quantum Simulation API is a RESTful service built with **FastAPI** that expo
 
 ## Endpoints
 
-### 1. Health Check
+### 1. Root Service Info
+
+Returns service identity and basic status.
+
+- **Method**: `GET`
+- **Path**: `/`
+- **Request Headers**: None
+- **Response**: `200 OK`
+```json
+{
+  "service": "SIH Quantum Simulation Backend",
+  "status": "ok"
+}
+```
+
+---
+
+### 2. Health Check
 
 Verifies backend liveness and readiness.
 
@@ -25,6 +42,7 @@ Verifies backend liveness and readiness.
   "status": "ok"
 }
 ```
+
 
 ---
 

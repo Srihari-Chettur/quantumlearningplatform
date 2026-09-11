@@ -101,7 +101,21 @@ Configuration is managed in `app/core/config.py` and supports the following envi
 
 ## API Endpoints
 
-### 1. Service Health Check
+### 1. Root Service Info
+
+**Endpoint**: `GET /`
+
+**Response**:
+```json
+{
+  "service": "SIH Quantum Simulation Backend",
+  "status": "ok"
+}
+```
+
+---
+
+### 2. Service Health Check
 
 **Endpoint**: `GET /health`
 
@@ -111,6 +125,7 @@ Configuration is managed in `app/core/config.py` and supports the following envi
   "status": "ok"
 }
 ```
+
 
 ---
 

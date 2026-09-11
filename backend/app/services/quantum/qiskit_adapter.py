@@ -51,6 +51,8 @@ class QiskitAerAdapter(QuantumSimulatorBase):
                 qc.t(gate.qubits[0])
             elif gate.type == GateType.CNOT:
                 qc.cx(gate.qubits[0], gate.qubits[1])
+            elif gate.type == GateType.CZ:
+                qc.cz(gate.qubits[0], gate.qubits[1])
             elif gate.type == GateType.MEASURE:
                 clbit = gate.classical_bits[0] if gate.classical_bits else gate.qubits[0]
                 qc.measure(gate.qubits[0], clbit)
