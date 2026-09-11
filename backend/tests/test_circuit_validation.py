@@ -223,3 +223,59 @@ def test_malformed_json_request():
     assert response.status_code in (400, 422)
     data = response.json()
     assert "detail" in data
+
+
+def test_duplicate_gate_ids():
+    """Circuit with duplicate gate IDs must fail validation."""
+    payload = {
+        "num_qubits": 2,
+        "gates": [
+            {"id": "gate-1", "type": "H", "qubits": [0]},
+            {"id": "gate-1", "type": "X", "qubits": [1]},
+            {"id": "m1", "type": "MEASURE", "qubits": [0], "classical_bits": [0]}
+        ],
+        "shots": 1024
+    }
+    response = client.post("/api/simulation/run", json=payload)
+    assert response.status_code in (400, 422)
+    data = response.json()
+    assert "detail" in data
+    assert "Duplicate gate ID 'gate-1' found" in data["detail"]
+
+
+def test_multiple_measurements_same_classical_bit():
+    """Multiple measurements targeting the same classical bit must fail."""
+    payload = {
+        "num_qubits": 2,
+        "num_classical_bits": 2,
+        "gates": [
+            {"id": "h1", "type": "H", "qubits": [0]},
+            {"id": "m1", "type": "MEASURE", "qubits": [0], "classical_bits": [0]},
+            {"id": "m2", "type": "MEASURE", "qubits": [1], "classical_bits": [0]}
+        ],
+        "shots": 1024
+    }
+    response = client.post("/api/simulation/run", json=payload)
+    assert response.status_code in (400, 422)
+    data = response.json()
+    assert "detail" in data
+    assert "Classical bit 0 is targeted by multiple measurements" in data["detail"]
+
+
+def test_zero_classical_bits_provided():
+    """Providing num_classical_bits <= 0 must fail validation."""
+    payload = {
+        "num_qubits": 2,
+        "num_classical_bits": 0,
+        "gates": [
+            {"id": "h1", "type": "H", "qubits": [0]},
+            {"id": "m1", "type": "MEASURE", "qubits": [0], "classical_bits": [0]}
+        ],
+        "shots": 1024
+    }
+    response = client.post("/api/simulation/run", json=payload)
+    assert response.status_code in (400, 422)
+    data = response.json()
+    assert "detail" in data
+    assert "num_classical_bits must be greater than 0" in data["detail"]
+

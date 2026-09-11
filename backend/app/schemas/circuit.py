@@ -1,6 +1,8 @@
 from enum import Enum
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Set
 from pydantic import BaseModel, Field, field_validator, model_validator
+
+from app.core.config import settings
 
 
 class GateType(str, Enum):
@@ -71,8 +73,10 @@ class CircuitSchema(BaseModel):
     def validate_num_qubits(cls, v: int) -> int:
         if v <= 0:
             raise ValueError(f"num_qubits must be greater than 0, but received {v}.")
-        if v > 24:
-            raise ValueError(f"num_qubits cannot exceed 24 for state simulation, but received {v}.")
+        if v > settings.MAX_QUBITS:
+            raise ValueError(
+                f"num_qubits cannot exceed {settings.MAX_QUBITS} for state simulation, but received {v}."
+            )
         return v
 
     @field_validator("shots")
@@ -80,15 +84,15 @@ class CircuitSchema(BaseModel):
     def validate_shots(cls, v: int) -> int:
         if v <= 0:
             raise ValueError(f"shots must be greater than 0, but received {v}.")
-        if v > 100_000:
-            raise ValueError(f"shots cannot exceed 100,000, but received {v}.")
+        if v > settings.MAX_SHOTS:
+            raise ValueError(f"shots cannot exceed {settings.MAX_SHOTS}, but received {v}.")
         return v
 
     @field_validator("num_classical_bits")
     @classmethod
     def validate_num_classical_bits(cls, v: Optional[int]) -> Optional[int]:
-        if v is not None and v < 0:
-            raise ValueError(f"num_classical_bits cannot be negative, but received {v}.")
+        if v is not None and v <= 0:
+            raise ValueError(f"num_classical_bits must be greater than 0 when provided, but received {v}.")
         return v
 
     @model_validator(mode="after")
@@ -100,17 +104,26 @@ class CircuitSchema(BaseModel):
         if not self.gates:
             raise ValueError("Circuit must contain at least one gate operation.")
 
+        seen_gate_ids: Set[str] = set()
+        measured_classical_bits: Set[int] = set()
         has_measurement = False
 
         for gate in self.gates:
-            # 1. Validate qubit bounds
+            # 1. Validate unique gate IDs
+            if gate.id in seen_gate_ids:
+                raise ValueError(
+                    f"Duplicate gate ID '{gate.id}' found. Each gate must have a unique identifier."
+                )
+            seen_gate_ids.add(gate.id)
+
+            # 2. Validate qubit bounds
             for q in gate.qubits:
                 if q < 0 or q >= self.num_qubits:
                     raise ValueError(
                         f"Gate '{gate.id}' references qubit {q}, but the circuit only contains {self.num_qubits} qubits."
                     )
 
-            # 2. Validate single-qubit gates
+            # 3. Validate single-qubit gates
             if gate.type in {
                 GateType.H,
                 GateType.X,
@@ -128,7 +141,7 @@ class CircuitSchema(BaseModel):
                         f"Gate '{gate.id}' of type '{gate.type.value}' cannot have classical bits."
                     )
 
-            # 3. Validate CNOT gate
+            # 4. Validate CNOT gate
             elif gate.type == GateType.CNOT:
                 if len(gate.qubits) != 2:
                     raise ValueError(
@@ -143,7 +156,7 @@ class CircuitSchema(BaseModel):
                         f"Gate '{gate.id}' of type 'CNOT' cannot have classical bits."
                     )
 
-            # 4. Validate MEASURE operation
+            # 5. Validate MEASURE operation
             elif gate.type == GateType.MEASURE:
                 has_measurement = True
                 if len(gate.qubits) != 1:
@@ -170,9 +183,17 @@ class CircuitSchema(BaseModel):
                         f"Gate '{gate.id}' references classical bit {c}, but the circuit only contains {self.num_classical_bits} classical bits."
                     )
 
+                # Check for multiple measurements targeting the same classical bit
+                if c in measured_classical_bits:
+                    raise ValueError(
+                        f"Classical bit {c} is targeted by multiple measurements. Each measurement must target a unique classical bit."
+                    )
+                measured_classical_bits.add(c)
+
         if not has_measurement:
             raise ValueError(
                 "Circuit must contain at least one MEASURE gate to perform measurement simulation."
             )
 
         return self
+
