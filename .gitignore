@@ -1,0 +1,30 @@
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+backend/.venv/
+.venv/
+.pytest_cache/
+
+# Node & Next.js
+frontend/node_modules/
+node_modules/
+frontend/.next/
+.next/
+frontend/out/
+
+# Databases
+database/*.db
+*.sqlite
+*.sqlite3
+
+# IDE & OS
+.DS_Store
+*.swp
+*.swo

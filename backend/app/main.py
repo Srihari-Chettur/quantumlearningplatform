@@ -1,4 +1,5 @@
 import logging
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,6 +7,7 @@ from fastapi.responses import JSONResponse
 
 from app.api import api_router
 from app.core.config import settings
+from app.database.connection import init_database
 
 # Configure logging
 logging.basicConfig(
@@ -14,13 +16,26 @@ logging.basicConfig(
 )
 logger = logging.getLogger("quantum_platform")
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan manager to initialize database on startup."""
+    try:
+        init_database()
+        logger.info("Database initialized successfully on application startup.")
+    except Exception as e:
+        logger.exception(f"Failed to initialize database: {e}")
+    yield
+
+
 app = FastAPI(
     title="SIH 2026 Quantum Simulation Backend",
     description="Production-quality quantum simulation backend for the interactive quantum algorithm learning platform.",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
-    openapi_url="/openapi.json"
+    openapi_url="/openapi.json",
+    lifespan=lifespan
 )
 
 # Configure CORS for Next.js frontend communication
